@@ -15,7 +15,8 @@ async def index_handler(request):
 
 async def autocomplete_handler(request):
     res = await app.collection.create_index([("word", pymongo.TEXT)])
-    cursor = app.collection.find({"$text": {'$search': '/' + request.query.get('q') + '$/'}}).sort("popularity").limit(3)
+    # cursor = app.collection.find({"$text": {"$search": {'$regex': '/' + request.query.get('q') + '$/'}}}).sort("popularity").limit(3)
+    cursor = app.collection.find({"word": {'$regex': '/' + request.query.get('q') + '/', "$options": "$i"}}).sort("popularity").limit(3)
     print('/' + request.query.get('q') + '$/', flush=True)
     print(cursor, flush=True)
     print(request.query.get('q'), flush=True)
