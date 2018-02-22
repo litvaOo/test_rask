@@ -7,9 +7,11 @@
     <title>Test</title>
 </head>
 <body>
-    <form>
-        <input type="text" placeholder="test" id="autoform" onchange="handleChange(this.value)"/>
+  <div>
+    <form onsubmit="return false;" enctype="multipart/form-data">
+        <input type="text" placeholder="test" id="autoform" oninput="handleChange(this.value);"/>
     </form>
+  </div>
 </body>
 <script>
     function handleChange(value) {
@@ -17,8 +19,29 @@
         var param = "q=" + value
         xhr.open('GET', '/auto_complete?' + param, false);
         xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-        xhr.send()
-        alert( xhr.responseText );
+        xhr.send();
+        data = JSON.parse(xhr.responseText);
+        if (document.body.children[0].children.length > 1) {
+          var parentElem = document.body.children[0]
+          for (i = 0; i <= parentElem.children.length; i++) {
+            var childElem = parentElem.children[1]
+            childElem.remove()
+          }
+        }
+        for (i = 0; i <= data.length; i++) {
+          var parentElem = document.body.children[0]
+          var childElem = parentElem.children[1]
+          console.log(data[i]);
+          var p = document.createElement('p')
+          console.log(parentElem.children.length)
+          p.innerHTML = data[i].word
+          p.setAttribute("onclick", "putValue(this.innerHTML)")
+          parentElem.appendChild(p)
+        }
+      }
+    function putValue(value) {
+      document.body.children[0].children[0].children[0].value = value
+      handleChange(value)
     }
 </script>
 </html>

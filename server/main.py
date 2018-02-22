@@ -17,16 +17,19 @@ async def index_handler(request):
 async def autocomplete_handler(request):
     res = await app.collection.create_index([("word", pymongo.TEXT)])
     regex = re.compile(request.query.get('q'))
-    cursor = app.collection.find({"word": {"$regex": regex}})
-    print('/' + request.query.get('q') + '/', flush=True)
+    cursor = app.collection.find({"word": {"$regex": regex}}).sort(
+            "popularity", pymongo.DESCENDING).limit(3)
+    print(regex, flush=True)
     print(cursor, flush=True)
     print(request.query.get('q'), flush=True)
     list_of_suggestions = []
-    for doc in await cursor.to_list(length=100):
+    for doc in await cursor.to_list(length=3):
         print(doc, flush=True)
         list_of_suggestions.append({"word": doc.get('word')})
 
-    return web.json_response(json.dumps(list_of_suggestions))
+    return web.Response(
+        text=json.dumps(list_of_suggestions),
+        headers={"Content-Type": "application/json; charset=utf-8"})
 
 
 app = web.Application()
